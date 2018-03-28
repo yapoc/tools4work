@@ -30,10 +30,10 @@ def generate_xetters (attribute, is_array):
 
 if __name__ == "__main__":
   parser = argparse.ArgumentParser ( description = "Génération des Xetters.")
-  parser.add_argument ('--attribute', type = str, \
+  parser.add_argument ('-a', '--attribute', type = str, \
       help = "Nom de l'attribut.", \
       dest = "attr", required = True)
-  parser.add_argument ('--is-array', \
+  parser.add_argument ('-i', '--is-array', \
       help = "Activer si l'attribut est un tableau.", \
       dest = "is_array", required = False, action = 'store_true')
   args = parser.parse_args ()

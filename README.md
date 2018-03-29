@@ -20,3 +20,6 @@ A simple `python` script that creates getters and setters for a given attribute.
     }
 
 ```
+
+## `.vimrc`
+My `.vimrc` file.

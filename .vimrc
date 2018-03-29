@@ -6,8 +6,8 @@ map <F2> :tabp<CR>
 imap <F2> <Esc>:tabp<CR>a
 map <F3> :tabn<CR>
 imap <F3> <Esc>:tabn<CR>a
-map <F5> :call CreateGettersAndSetters()<CR>
-imap <F5> <Esc>:call CreateGettersAndSetters()<CR>a
+map <F5> :call CreateXetters()<CR>
+imap <F5> <Esc>:call CreateXetters()<CR>a
 
 set tabstop=2
 set shiftwidth=2
@@ -33,7 +33,7 @@ function SetPhpSettings()
   set tabstop=4
   set shiftwidth=4
 endfunction
-function CreateGettersAndSetters()
+function CreateXetters()
   let l:indent = "    "
   let l:var_name = input ("Indiquer l'attribut à créer : ")
 

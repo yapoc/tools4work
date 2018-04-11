@@ -1,4 +1,6 @@
 import json
+import yaml
+import sys
 
 def reformat_json (data):
   try:
@@ -22,4 +24,8 @@ def load_data_from_file (json_file):
   except FileNotFoundError:
     sys.exit ("Le fichier indiqué n'existe pas.")
 
-
+def json2yaml (data):
+  try:
+    return yaml.dump(json.loads(data), default_flow_style=False)
+  except Exception as e:
+    sys.exit ("Erreur dans json2yaml : {}".format (e))

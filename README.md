@@ -1,6 +1,9 @@
 # tools4work
 Some tools that may be useful when I'm at work.
 
+## `json2yaml.py`
+This script converts from `json` to `yaml`. Works at file level or using inputs from `stdin`.
+
 ## `.bashrc`
 Two functions to ease the manipulation of an API : 
   * `api_get ENDPOINT` uses `pretty_json.py` to nicely display the response of the server.

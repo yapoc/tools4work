@@ -22,6 +22,21 @@ get_rfc () {
         -e "s/^.*\[Page [0-9]\+\]$//" | grep -vE "^\s*$" > rfc_${1}.txt
 }
 
+api_get () {
+  [[ $# -ne 1 ]] && { \
+    echo "api_get <ENDPOINT_URL>" ; \
+  } || { \
+    curl -XGET "${1}" | pretty_json.py | less ; \
+  }
+}
+api_post () {
+  [[ $# -ne 2 || ! -r "${2}" ]] && { \
+    echo "api_post <ENDPOINT_URL> <FILE_CONTAINING_DATA_TO_POST>" ;\
+  } || { \
+    curl -XPOST -H 'content-type: application/ld+json' "${1}" --data @"${2}" | pretty_json.py | less ; \
+  }
+}
+
 
 alias ls='ls --color=auto'
 export HISTCONTROL=ignoreboth

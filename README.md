@@ -1,6 +1,11 @@
 # tools4work
 Some tools that may be useful when I'm at work.
 
+## `.bashrc`
+Two functions to ease the manipulation of an API : 
+  * `api_get ENDPOINT` uses `pretty_json.py` to nicely display the response of the server.
+  * `api_post ENDPOINT JSON_FILE` `POST`s the data contained in `JSON_FILE` then uses `pretty_json.py` to nicely display the response of the server.
+
 ## `pretty_json.py`
 This script cleans and indent a json file. If no argument, gets inputs from `stdin` : 
 

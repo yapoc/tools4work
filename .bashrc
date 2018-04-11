@@ -22,18 +22,23 @@ get_rfc () {
         -e "s/^.*\[Page [0-9]\+\]$//" | grep -vE "^\s*$" > rfc_${1}.txt
 }
 
+export PYTHON_VENV=${HOME}/fake_env
 api_get () {
   [[ $# -ne 1 ]] && { \
     echo "api_get <ENDPOINT_URL>" ; \
   } || { \
+    source ${PYTHON_VENV}/bin/activate ; \
     curl -XGET "${1}" | pretty_json.py | less ; \
+    deactivate ;
   }
 }
 api_post () {
   [[ $# -ne 2 || ! -r "${2}" ]] && { \
     echo "api_post <ENDPOINT_URL> <FILE_CONTAINING_DATA_TO_POST>" ;\
   } || { \
+    source ${PYTHON_VENV}/bin/activate ; \
     curl -XPOST -H 'content-type: application/ld+json' "${1}" --data @"${2}" | pretty_json.py | less ; \
+    deactivate ;
   }
 }
 
@@ -44,7 +49,7 @@ export HISTIGNORE='ls:bg:fg:history'
 export HISTSIZE=5000
 export HISTFILESIZE=10000
 
-export PATH=${PATH}:/home/yapoc/tools4work
+export PATH=${PATH}:${HOME}/tools4work
 
 export PS1='[\D{%H:%M:%S} - \u@\h \W]\$ '
 export http_proxy="http://redacted"

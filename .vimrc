@@ -59,7 +59,7 @@ function CreateXetters()
       \"", 
       \"g")
 
-  let l:attribute = l:indent . "private $this->" . l:var_name . ";"
+  let l:attribute = l:indent . "private $" . l:var_name . ";"
   put = l:attribute
   let l:getter = l:indent . "public function get" . l:camel_case_var_name . "()\n
 \" . l:indent . "{\n

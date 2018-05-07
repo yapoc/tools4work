@@ -72,6 +72,19 @@ function CreateXetters()
 \" . l:indent . l:indent . "return $this;\n
 \" . l:indent . "}"
   put = l:setter
+
+  let l:tester = l:indent . "/** \n
+\" . l:indent . " * Fonction testant les Xetters " . l:var_name . ".\n
+\" . l:indent . " **/\n
+\" . l:indent . "/*\n
+\" . l:indent . "$this->" . l:var_name . " = '1234';\n
+\" . l:indent . "public function test" . l:camel_case_var_name . " (): void\n
+\" . l:indent . "{\n
+\" . l:indent . l:indent . "$this->set" . l:camel_case_var_name . " ($this->" . l:var_name .");\n
+\" . l:indent . l:indent . "$this->assertEquals ($this->" . l:var_name .", $this->get". l:camel_case_var_name . "());\n
+\" . l:indent . "}\n
+\" . l:indent . "*/\n"
+  put = l:tester
 endfunction
 
 au BufRead,BufNewFile *.html.twig set filetype=htmldjango

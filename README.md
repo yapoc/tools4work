@@ -1,6 +1,9 @@
 # tools4work
 Some tools that may be useful when I'm at work.
 
+## `make_test_php_xetters.py`
+This script parses some PHP code or script and tries to write automatic test functions.
+
 ## `json2yaml.py`
 This script converts from `json` to `yaml`. Works at file level or using inputs from `stdin`.
 

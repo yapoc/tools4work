@@ -3,8 +3,8 @@ import argparse
 import sys
 import json
 from libs import load_data_from_file, save_to_file, \
-       extract_attributes_from_php_code, extract_classname_from_php_code, \
-       make_random_data_from_attributes
+       extract_classname_from_php_code, \
+       make_random_data_from_attributes, extract_typed_attributes_from_php_code
 
 def _write_behat_assertions_based_on_data (data):
   result = ""
@@ -13,7 +13,7 @@ def _write_behat_assertions_based_on_data (data):
   return result
 
 def php_code_to_behat_feature (php_code):
-  attributes = extract_attributes_from_php_code (php_code)
+  attributes = extract_typed_attributes_from_php_code (php_code)
   classname = extract_classname_from_php_code (php_code)
   endpoint = '/api/{}s'.format (classname.lower ())
 
@@ -29,7 +29,6 @@ def php_code_to_behat_feature (php_code):
     'posted_json': json.dumps (posted_data, sort_keys = True, indent = 2),
     'putted_json': json.dumps (putted_data, sort_keys = True, indent = 2)
   }
-
 
   result = """
 @admin @{endpoint} @api

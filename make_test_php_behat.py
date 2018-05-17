@@ -3,8 +3,9 @@ import argparse
 import sys
 import json
 from libs import load_data_from_file, save_to_file, \
-       extract_classname_from_php_code, \
-       make_random_data_from_attributes, extract_typed_attributes_from_php_code
+       extract_data_from_php_file, \
+       make_random_data_from_attributes
+import os
 
 def _write_behat_assertions_based_on_data (data):
   result = ""
@@ -12,9 +13,10 @@ def _write_behat_assertions_based_on_data (data):
     result += """    And the JSON node "{}" should contain "{}"\n""".format (k, data[k])
   return result
 
-def php_code_to_behat_feature (php_code):
-  attributes = extract_typed_attributes_from_php_code (php_code)
-  classname = extract_classname_from_php_code (php_code)
+def php_file_to_behat_feature (php_file):
+  data = extract_data_from_php_file (php_file)
+  classname = data['classname']
+  attributes = data['attributes']
   endpoint = '/api/{}s'.format (classname.lower ())
 
   posted_data = make_random_data_from_attributes (attributes, "POST CONTEXT")
@@ -107,8 +109,10 @@ if __name__ == "__main__":
   args = parser.parse_args ()
 
   if args.file:
-    outfile = args.file.replace ('.php', '.feature').lower ()
-    save_to_file (outfile, php_code_to_behat_feature (load_data_from_file (args.file)))
+    temp_outfile = args.file.split (os.sep)
+    temp_outfile[-1] = temp_outfile[-1].replace ('.php', '.feature').lower ()
+    outfile = os.sep.join (temp_outfile)
+    save_to_file (outfile, php_file_to_behat_feature (args.file))
     print ("Le fichier {} a été correctement créé.".format (outfile))
   elif args.from_stdin:
     print (php_code_to_behat_feature (sys.stdin.read ()))

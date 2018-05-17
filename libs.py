@@ -1,6 +1,7 @@
 import json
 import yaml
 import sys
+import re
 
 def reformat_json (data):
   try:
@@ -29,3 +30,12 @@ def json2yaml (data):
     return yaml.dump(json.loads(data), default_flow_style=False)
   except Exception as e:
     sys.exit ("Erreur dans json2yaml : {}".format (e))
+
+def extract_attributes_from_php_code (php_code):
+  regexp = re.compile ('^\s*(protected|private|public)\s+\$(?P<var_name>.+)\s*[=;].*$')
+  result = []
+  for line in php_code.split ("\n"):
+    m = re.match (regexp, line.strip ())
+    if m:
+      result.append (m.group ('var_name'))
+  return result

@@ -1,21 +1,17 @@
 #!/usr/bin/env python
 import argparse
 import sys
-from libs import load_data_from_file, save_to_file
-import re
+from libs import load_data_from_file, save_to_file, extract_attributes_from_php_code
 
 def php_code_to_xetters (php_code):
-  regexp = re.compile ('^\s*(protected|private|public)\s+\$(?P<var_name>.+)\s*[=;].*$')
   attributes = {}
-  for line in php_code.split ("\n"):
-    m = re.match (regexp, line.strip ())
-    if m:
-      functionSuffix = "{}{}".format (m.group ('var_name')[:1].upper (), m.group ('var_name')[1:])
-      attributes[m.group ('var_name')] = {
-        'getter': "get{}".format (functionSuffix),
-        'setter': "set{}".format (functionSuffix),
-        'tester': "test{}".format (functionSuffix),
-      }
+  for attribute in extract_attributes_from_php_code (php_code):
+    functionSuffix = "{}{}".format (attribute[:1].upper (), attribute[1:])
+    attributes[attribute] = {
+      'getter': "get{}".format (functionSuffix),
+      'setter': "set{}".format (functionSuffix),
+      'tester': "test{}".format (functionSuffix),
+    }
           
   result = """<?php
 namespace App\Tests\Entity;

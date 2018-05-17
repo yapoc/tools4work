@@ -39,3 +39,21 @@ def extract_attributes_from_php_code (php_code):
     if m:
       result.append (m.group ('var_name'))
   return result
+
+def extract_classname_from_php_code (php_code):
+  regexp = re.compile ('^\s*class\s+(?P<class_name>.+)\s*$')
+  for line in php_code.split ("\n"):
+    m = re.match (regexp, line.strip ())
+    if m:
+      return m.group ('class_name')
+  return None
+
+def make_random_data_from_attributes (attributes, randomizer_token = None):
+  inject_value = "chaine aléatoire"
+  if randomizer_token:
+    inject_value += " "+randomizer_token
+  result = {}
+  for a in attributes:
+    if (a != 'id'):
+      result[a] = inject_value
+  return result

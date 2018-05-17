@@ -100,7 +100,6 @@ def make_random_data_from_attributes (attributes, randomizer_token = None):
     inject_values['string'] += " "+randomizer_token
   result = {}
   for a in attributes:
-    print ("Traitement de la clef {} ({})".format (a, attributes[a]))
     if (a != 'id'):
       if attributes[a][0] != "file":
         result[a] = inject_values[attributes[a][0]]

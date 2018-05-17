@@ -93,7 +93,7 @@ def make_random_data_from_attributes (attributes, randomizer_token = None):
     "string": "chaine aléatoire",
     "integer": randrange (0, 100),
     "datetime": "01-01-1970T00:00:00Z",
-    "bool": randrange (0, 1),
+    "bool": bool (randrange (0, 1)),
     "decimal": float ("{}.{}".format (randrange (5), randrange (100)))
   }
   if randomizer_token:

@@ -17,7 +17,7 @@ def php_file_to_behat_feature (php_file):
   data = extract_data_from_php_file (php_file)
   classname = data['classname']
   attributes = data['attributes']
-  endpoint = '/api/{}s'.format (classname.lower ())
+  endpoint = data['endpoint']
 
   posted_data = make_random_data_from_attributes (attributes, "POST CONTEXT")
   posted_data_assertions = _write_behat_assertions_based_on_data (posted_data)

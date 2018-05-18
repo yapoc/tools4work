@@ -33,6 +33,15 @@ def json2yaml (data):
   except Exception as e:
     sys.exit ("Erreur dans json2yaml : {}".format (e))
 
+def classname_to_endpoint (classname):
+  casse_detector_regexp = re.compile (r'([A-Z])')
+  endpoint = casse_detector_regexp.sub ('_\g<1>', classname).lower ()
+  if endpoint.startswith ('_'):
+    endpoint = endpoint [1:]
+  if not endpoint.endswith ('s'):
+    endpoint = '{}s'.format (endpoint)
+  return '/api/{}'.format (endpoint)
+
 def extract_attributes_from_php_code (php_code):
   regexp = re.compile ('^\s*(protected|private|public)\s+\$(?P<var_name>.+)\s*[=;].*$')
   result = []
@@ -64,6 +73,7 @@ def extract_data_from_php_file (php_file):
     'classname': extract_classname_from_php_file (php_file),
     'attributes': {}
   }
+  result['endpoint'] = classname_to_endpoint (result['classname'])
   last_seen = [ None, None ]
   for line in load_data_from_file (php_file).split ('\n'):
     line = line.strip ()

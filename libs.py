@@ -68,7 +68,7 @@ def map_from_type_to_mock (input_type):
 
 def extract_data_from_php_file (php_file):
   attribute_name_regexp = re.compile ('^\s*(protected|private|public)\s+\$(?P<var_name>.+)\s*[=;].*$')
-  attribute_type_regexp = re.compile ('^\s*\*.+((Column.*type)|(ManyToMany.+targetEntity)|(OneToOne.+targetEntity))\s*=\s*"(?P<type>[^"]+)".*$')
+  attribute_type_regexp = re.compile ('^\s*\*.+((Column.*type)|(ManyToOne.+targetEntity)|(ManyToMany.+targetEntity)|(OneToOne.+targetEntity))\s*=\s*"(?P<type>[^"]+)".*$')
   result = {
     'classname': extract_classname_from_php_file (php_file),
     'attributes': {}
@@ -112,8 +112,10 @@ def make_random_data_from_attributes (attributes, randomizer_token = None):
   for a in attributes:
     if (a != 'id'):
       if attributes[a][0] != "file":
-        result[a] = inject_values[attributes[a][0]]
+        if attributes[a][0]:
+          result[a] = inject_values[attributes[a][0]]
+        else:
+          result[a] = "Type non reconnu, va falloir palucher."
       else:
-        print ("On va chercher dans {}".format (attributes[a][1]))
         result[a] = make_random_data_from_attributes (extract_data_from_php_file (attributes[a][1])['attributes'], randomizer_token)
   return result

@@ -148,19 +148,29 @@ def correlate(functions, attributes):
     print ("+-{:-^25}-+-{:-^25}-+-{:-^10}-+".format("-", "-", "-"))
 
     print("| {:>25} | {:>25} | {:^10} |".format("Getter php code", "Getter php doc", validate_getter(functions[getter])))
-    print("| {:>25} | {:>25} | {:^10} |".format("Setter php code", "Setter php doc", validate_setter(functions[setter])))
+
     temp = "KO"
     if doctrine_converted_type == attributes[attr]['phpdoc']:
       temp = "OK"
     print("| {:>25} | {:>25} | {:^10} |".format("Php code", "Doctrine annotation", temp))
+
     temp = "KO"
-    if functions[getter]['php'] == functions[setter]['php']:
+    if doctrine_converted_type == functions[getter]['php']:
       temp = "OK"
-    print("| {:>25} | {:>25} | {:^10} |".format("Getter php code out", "Setter php code in", temp))
-    temp = "KO"
-    if doctrine_converted_type == functions[setter]['php']:
-      temp = "OK"
-    print("| {:>25} | {:>25} | {:^10} |".format("Doctrine annotation", "Setter php code in", temp))
+    print("| {:>25} | {:>25} | {:^10} |".format("Doctrine annotation", "Getter php code out", temp))
+
+    if setter in functions:
+      print("| {:>25} | {:>25} | {:^10} |".format("Setter php code", "Setter php doc", validate_setter(functions[setter])))
+
+      temp = "KO"
+      if functions[getter]['php'] == functions[setter]['php']:
+        temp = "OK"
+      print("| {:>25} | {:>25} | {:^10} |".format("Getter php code out", "Setter php code in", temp))
+
+      temp = "KO"
+      if doctrine_converted_type == functions[setter]['php']:
+        temp = "OK"
+      print("| {:>25} | {:>25} | {:^10} |".format("Doctrine annotation", "Setter php code in", temp))
   print ("+-{:-^66}-+".format('-'))
 
 def main(phpcode):

@@ -84,44 +84,24 @@ def extract_attributes_and_functions_and_phpdoc_from_phpcode(php_code):
     'functions': functions
   }
 
-def compare_types(doctrine_type, phpdoc_type):
-  result = False
-  mapping = [
-    [ 'integer', 'int' ],
-    [ 'text', 'string' ],
-    [ 'string', 'string' ],
-    [ 'boolean', 'bool' ],
-    [ 'datetime', '\\DateTime' ],
-  ]
-  if doctrine_type == phpdoc_type:
-    result = True
+def convert_doctrine_to_php_type(doctrine_type):
+  mapping = {
+    'integer': 'int',
+    'text': 'string',
+    'string': 'string',
+    'boolean': 'boolean',
+    'datetime': '\\DateTime'
+  }
+  if doctrine_type in mapping:
+    return mapping[doctrine_type]
+  return "Type {} inconnu".format(doctrine_type)
 
-  for m in mapping:
-    if m[0] == doctrine_type and m[1] == phpdoc_type:
-      result = True
+def convert_doctrine_declaration_to_phptype(doctrine):
+  doctrine_type = convert_doctrine_to_php_type(doctrine['type'])
+  if 'nullable' in doctrine and doctrine['nullable'] == 'true':
+    doctrine_type = "?{}".format(doctrine_type)
 
-  return result
-
-def is_attribute_nullable_in_doctrine_and_phpdoc(doctrine_params, phpdoc_type):
-  result = False
-
-  if 'nullable' in doctrine_params:
-    if doctrine_params['nullable'].lower() == 'false':
-      """Non nullable dans doctrine donc ne doit pas démarrer par un ? dans la phpdoc."""
-      if phpdoc_type[:1] != "?":
-        result = True
-    elif doctrine_params['nullable'].lower() == 'true':
-      """Nullable dans doctrine donc doit démarrer par un ? dans la phpdoc."""
-      if phpdoc_type[:1] == "?":
-        result = True
-    else:
-      raise Exception('{} inconnu pour valeur de nullable.'.format(doctrine_params['nullable']))
-  else:
-    """Je fais l'hypothèse que par défaut doctrine fout les champs nullables."""
-    if phpdoc_type[:1] == "?":
-      result = True
-
-  return result
+  return doctrine_type
 
 def is_attribute_same_in_phpcode_and_phpdoc(phpcode, phpdoc):
   result = False
@@ -141,53 +121,51 @@ def is_attribute_same_in_phpcode_and_phpdoc(phpcode, phpdoc):
 
   return result
 
-def validate_attributes(attributes):
-  """
-  On va essayer de faire un contrôle des attributs : 
-  si nullable dans doctrine, alors la phpdoc doit être préfixée d'un `?`.
-  """
-  for attr in attributes:
-    print ("Attribut : {}".format (attr))
-    if compare_types(attributes[attr]['doctrine']['type'], attributes[attr]['phpdoc']):
-      print ("  [OK] Cohérent sur le type déclaré dans la phpdoc et dans le code php.")
-    else:
-      print ("  [KO] Incohérent sur le type déclaré dans la phpdoc et dans le code php.")
-
-    if is_attribute_nullable_in_doctrine_and_phpdoc(attributes[attr]['doctrine'], attributes[attr]['phpdoc']):
-      print ("  [OK] Cohérent sur nullable dans doctrine et dans la phpdoc")
-    else:
-      print ("  [KO] Incohérent sur nullable dans doctrine et dans la phpdoc")
-
 def validate_getter(function):
   function['php'] = re.sub('^\s*:\s*', '', function['php'])
   if is_attribute_same_in_phpcode_and_phpdoc(function['php'], function['phpdoc']):
-    print('  [OK] Type de retour cohérent.')
+    return "OK"
   else:
-    print('  [KO] Type de retour incohérent ({} !~ {}).'.format(function['php'], function['phpdoc']))
+    return "KO"
 
 def validate_setter(function):
-  """{'phpdoc': {'$debutPeriodeLitige': '\\DateTime'}, 'php': '?\\DateTime '}"""
   phpdoc_type = function['phpdoc'][list(function['phpdoc'].keys())[0]].strip()
   function['php'] = function['php'].strip()
 
   if is_attribute_same_in_phpcode_and_phpdoc(function['php'], phpdoc_type):
-    print('  [OK] Type de retour cohérent.')
+    return "OK"
   else:
-    print('  [KO] Type de retour incohérent ({} !~ {}).'.format(function['php'], phpdoc_type))
+    return "KO"
 
+def correlate(functions, attributes):
+  for attr in attributes:
+    getter = "get{}{}".format(attr[:1].upper(), attr[1:])
+    setter = "set{}{}".format(attr[:1].upper(), attr[1:])
+    doctrine_converted_type = convert_doctrine_declaration_to_phptype(attributes[attr]['doctrine'])
 
-def validate_functions(functions):
-  for function in functions:
-    print ("Fonction : {}".format (function))
-    if function[0:3] == "get":
-      validate_getter(functions[function])
-    elif function[0:3] == "set":
-      validate_setter(functions[function])
+    print ("+-{:-^66}-+".format('-'))
+    print ("| {: ^66} |".format(attr))
+    print ("+-{:-^25}-+-{:-^25}-+-{:-^10}-+".format("-", "-", "-"))
+
+    print("| {:>25} | {:>25} | {:^10} |".format("Getter php code", "Getter php doc", validate_getter(functions[getter])))
+    print("| {:>25} | {:>25} | {:^10} |".format("Setter php code", "Setter php doc", validate_setter(functions[setter])))
+    temp = "KO"
+    if doctrine_converted_type == attributes[attr]['phpdoc']:
+      temp = "OK"
+    print("| {:>25} | {:>25} | {:^10} |".format("Php code", "Doctrine annotation", temp))
+    temp = "KO"
+    if functions[getter]['php'] == functions[setter]['php']:
+      temp = "OK"
+    print("| {:>25} | {:>25} | {:^10} |".format("Getter php code out", "Setter php code in", temp))
+    temp = "KO"
+    if doctrine_converted_type == functions[setter]['php']:
+      temp = "OK"
+    print("| {:>25} | {:>25} | {:^10} |".format("Doctrine annotation", "Setter php code in", temp))
+  print ("+-{:-^66}-+".format('-'))
 
 def main(phpcode):
   sanitized_code = extract_attributes_and_functions_and_phpdoc_from_phpcode(phpcode)
-  validate_attributes(sanitized_code['attributes'])
-  validate_functions(sanitized_code['functions'])
+  correlate(sanitized_code['functions'], sanitized_code['attributes'])
 
 if __name__ == "__main__":
   parser = argparse.ArgumentParser ( description = "Validation de la cohérence entre les types doctrine annotés & les types php.")

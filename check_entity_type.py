@@ -89,7 +89,7 @@ def convert_doctrine_to_php_type(doctrine_type):
     'integer': 'int',
     'text': 'string',
     'string': 'string',
-    'boolean': 'boolean',
+    'boolean': 'bool',
     'datetime': '\\DateTime'
   }
   if doctrine_type in mapping:
@@ -137,6 +137,21 @@ def validate_setter(function):
   else:
     return "KO"
 
+def is_phpdoc_attribute_nullable(phpdoc):
+  result = (False, "KO")
+  if phpdoc.endswith('|null'):
+    result = (True, "OK")
+
+  return result
+
+def is_phpcode_attribute_nullable(phpcode):
+  result = (False, "KO")
+  phpcode = re.sub('^\s*:\s*', '', phpcode)
+  if phpcode.startswith('?'):
+    result = (True, "OK")
+
+  return result
+
 def correlate(functions, attributes):
   for attr in attributes:
     getter = "get{}{}".format(attr[:1].upper(), attr[1:])
@@ -146,6 +161,9 @@ def correlate(functions, attributes):
     print ("+-{:-^66}-+".format('-'))
     print ("| {: ^66} |".format(attr))
     print ("+-{:-^25}-+-{:-^25}-+-{:-^10}-+".format("-", "-", "-"))
+
+    print("| {:>25} | {:>25} | {:^10} |".format("Getter nullable php doc", "", is_phpdoc_attribute_nullable(functions[getter]['phpdoc'])[1]))
+    print("| {:>25} | {:>25} | {:^10} |".format("Getter nullable php code", "", is_phpcode_attribute_nullable(functions[getter]['php'])[1]))
 
     print("| {:>25} | {:>25} | {:^10} |".format("Getter php code", "Getter php doc", validate_getter(functions[getter])))
 
@@ -161,11 +179,6 @@ def correlate(functions, attributes):
 
     if setter in functions:
       print("| {:>25} | {:>25} | {:^10} |".format("Setter php code", "Setter php doc", validate_setter(functions[setter])))
-
-      temp = "KO"
-      if functions[getter]['php'] == functions[setter]['php']:
-        temp = "OK"
-      print("| {:>25} | {:>25} | {:^10} |".format("Getter php code out", "Setter php code in", temp))
 
       temp = "KO"
       if doctrine_converted_type == functions[setter]['php']:

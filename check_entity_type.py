@@ -120,7 +120,14 @@ def convert_doctrine_to_php_type(doctrine_type):
     return mapping[doctrine_type]
   return "Type {} inconnu".format(doctrine_type)
 
-def convert_doctrine_declaration_to_phptype(doctrine):
+def convert_doctrine_declaration_to_phpdoc(doctrine):
+  doctrine_type = convert_doctrine_to_php_type(doctrine['type'])
+  if 'nullable' in doctrine and doctrine['nullable'] == 'true':
+    doctrine_type = "{}|null".format(doctrine_type)
+
+  return doctrine_type
+
+def convert_doctrine_declaration_to_phpcode(doctrine):
   doctrine_type = convert_doctrine_to_php_type(doctrine['type'])
   if 'nullable' in doctrine and doctrine['nullable'] == 'true':
     doctrine_type = "{}|null".format(doctrine_type)
@@ -180,7 +187,8 @@ def correlate(functions, attributes):
   for attr in attributes:
     getter = "get{}{}".format(attr[:1].upper(), attr[1:])
     setter = "set{}{}".format(attr[:1].upper(), attr[1:])
-    doctrine_converted_type = convert_doctrine_declaration_to_phptype(attributes[attr]['doctrine'])
+    doctrine_converted_phpcode = convert_doctrine_declaration_to_phpcode(attributes[attr]['doctrine'])
+    doctrine_converted_phpdoc = convert_doctrine_declaration_to_phpdoc(attributes[attr]['doctrine'])
 
     print ("+-{:-^66}-+".format('-'))
     print ("| {: ^66} |".format(attr))
@@ -192,12 +200,12 @@ def correlate(functions, attributes):
     print("| {:>25} | {:>25} | {:^10} |".format("Getter php code", "Getter php doc", validate_getter(functions[getter])))
 
     temp = "KO"
-    if doctrine_converted_type == attributes[attr]['phpdoc']:
+    if doctrine_converted_phpdoc == attributes[attr]['phpdoc']:
       temp = "OK"
     print("| {:>25} | {:>25} | {:^10} |".format("Php code", "Doctrine annotation", temp))
 
     temp = "KO"
-    if doctrine_converted_type == functions[getter]['php'] or is_phpcode_attribute_nullable(functions[getter]['php'])[0]:
+    if doctrine_converted_phpcode == functions[getter]['php'] or is_phpcode_attribute_nullable(functions[getter]['php'])[0]:
       temp = "OK"
     print("| {:>25} | {:>25} | {:^10} |".format("Doctrine annotation", "Getter php code out", temp))
 
@@ -205,7 +213,7 @@ def correlate(functions, attributes):
       print("| {:>25} | {:>25} | {:^10} |".format("Setter php code", "Setter php doc", validate_setter(functions[setter])))
 
       temp = "KO"
-      if doctrine_converted_type == functions[setter]['php']:
+      if doctrine_converted_phpcode == functions[setter]['php']:
         temp = "OK"
       print("| {:>25} | {:>25} | {:^10} |".format("Doctrine annotation", "Setter php code in", temp))
   print ("+-{:-^66}-+".format('-'))

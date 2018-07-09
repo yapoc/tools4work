@@ -130,7 +130,7 @@ def convert_doctrine_declaration_to_phpdoc(doctrine):
 def convert_doctrine_declaration_to_phpcode(doctrine):
   doctrine_type = convert_doctrine_to_php_type(doctrine['type'])
   if 'nullable' in doctrine and doctrine['nullable'] == 'true':
-    doctrine_type = "{}|null".format(doctrine_type)
+    doctrine_type = "?{}".format(doctrine_type)
 
   return doctrine_type
 

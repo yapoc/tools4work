@@ -173,7 +173,7 @@ def correlate(functions, attributes):
     print("| {:>25} | {:>25} | {:^10} |".format("Php code", "Doctrine annotation", temp))
 
     temp = "KO"
-    if doctrine_converted_type == functions[getter]['php']:
+    if doctrine_converted_type == functions[getter]['php'] or is_phpcode_attribute_nullable(functions[getter]['php'])[0]:
       temp = "OK"
     print("| {:>25} | {:>25} | {:^10} |".format("Doctrine annotation", "Getter php code out", temp))
 

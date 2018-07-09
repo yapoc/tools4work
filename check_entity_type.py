@@ -13,6 +13,8 @@ def extract_attributes_and_functions_and_phpdoc_from_phpcode(php_code):
   php_getter = re.compile('^\s*public function (?P<getter>get.*)\(\)\s*(?P<return_type>.*)$')
   php_setter = re.compile('^\s*public function (?P<setter>set.*)\((?P<param_type>.*)\$.*\)\s*$')
   php_setter = re.compile('^\s*public function (?P<setter>set.*)\((?P<param_type>.*)\$.*$')
+  php_construct = re.compile('^\s*public function __construct.*$')
+  php_attribute_init = re.compile('^\s*\$this->(?P<attribute>.+)\s*=\s*.*;$')
 
   attributes = {}
   functions = {}
@@ -20,6 +22,8 @@ def extract_attributes_and_functions_and_phpdoc_from_phpcode(php_code):
   temp_phpdoc = ""
   temp_phpdoc_param = {}
   temp_phpdoc_return = ""
+  inside_constructor = False
+  constructor_set_attributes = {}
   for line in php_code.split ("\n"):
     line = line.strip()
     """
@@ -79,6 +83,26 @@ def extract_attributes_and_functions_and_phpdoc_from_phpcode(php_code):
               'php': f4.group('param_type')
             }
             temp_phpdoc_param = {}
+
+    """
+    Allez, on repart à 0 pour traiter les constructeurs.
+    """
+    c1 = re.match(php_construct, line)
+    if c1:
+      inside_constructor = True
+    if inside_constructor:
+      if line == "}":
+        inside_constructor = False
+      c2 = re.match(php_attribute_init, line)
+      if c2:
+        constructor_set_attributes[c2.group('attribute').strip()] = True
+
+  for attr in attributes:
+    if attr in constructor_set_attributes:
+      attributes[attr]['initialized'] = True
+    else:
+      attributes[attr]['initialized'] = False
+  
   return {
     'attributes': attributes,
     'functions': functions
@@ -137,17 +161,17 @@ def validate_setter(function):
   else:
     return "KO"
 
-def is_phpdoc_attribute_nullable(phpdoc):
+def is_phpdoc_attribute_nullable(phpdoc, initialized = False):
   result = (False, "KO")
-  if phpdoc.endswith('|null'):
+  if phpdoc.endswith('|null') or initialized:
     result = (True, "OK")
 
   return result
 
-def is_phpcode_attribute_nullable(phpcode):
+def is_phpcode_attribute_nullable(phpcode, initialized = False):
   result = (False, "KO")
   phpcode = re.sub('^\s*:\s*', '', phpcode)
-  if phpcode.startswith('?'):
+  if phpcode.startswith('?') or initialized:
     result = (True, "OK")
 
   return result
@@ -162,8 +186,8 @@ def correlate(functions, attributes):
     print ("| {: ^66} |".format(attr))
     print ("+-{:-^25}-+-{:-^25}-+-{:-^10}-+".format("-", "-", "-"))
 
-    print("| {:>25} | {:>25} | {:^10} |".format("Getter nullable php doc", "", is_phpdoc_attribute_nullable(functions[getter]['phpdoc'])[1]))
-    print("| {:>25} | {:>25} | {:^10} |".format("Getter nullable php code", "", is_phpcode_attribute_nullable(functions[getter]['php'])[1]))
+    print("| {:>25} | {:>25} | {:^10} |".format("Getter nullable php doc", "", is_phpdoc_attribute_nullable(functions[getter]['phpdoc'], attributes[attr]['initialized'])[1]))
+    print("| {:>25} | {:>25} | {:^10} |".format("Getter nullable php code", "", is_phpcode_attribute_nullable(functions[getter]['php'], attributes[attr]['initialized'])[1]))
 
     print("| {:>25} | {:>25} | {:^10} |".format("Getter php code", "Getter php doc", validate_getter(functions[getter])))
 

@@ -14,7 +14,7 @@ def generate_xetters (attribute, is_array):
     /**
      * @return xxx|null
      */
-    public function {} (): ?xxx
+    public function {}(): ?xxx
     {{
         return $this->{};
     }}
@@ -23,7 +23,7 @@ def generate_xetters (attribute, is_array):
      *
      * @return self
      */
-    public function {} (${}): self
+    public function {}(${}): self
     {{
         $this->{} = ${};
 
@@ -38,7 +38,7 @@ def generate_xetters (attribute, is_array):
      *
      * @return self
      */
-    public function {} (${})
+    public function {}(${})
     {{
         $this->{}[] = ${};
 

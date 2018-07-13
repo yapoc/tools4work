@@ -8,24 +8,39 @@ def generate_xetters (attribute, is_array):
   setterName = "set{}".format (saneAttribute)
   result = """
     private ${};
-    public function {} ()
+    /**
+     * @return xxx|null
+     */
+    public function {} (): ?xxx
     {{
         return $this->{};
     }}
-    public function {} (${})
+    /**
+     * @param xxx ${}
+     *
+     * @return self
+     */
+    public function {} (${}): self
     {{
         $this->{} = ${};
+
         return $this;
-    }}""".format (attribute, getterName, attribute, setterName, attribute, attribute, attribute)
+    }}""".format (attribute, getterName, attribute, attribute, setterName, attribute, attribute, attribute)
 
   if is_array:
     adderName = "add{}".format (saneAttribute)
     result = """{}
+    /**
+     * @param xxx ${}
+     *
+     * @return self
+     */
     public function {} (${})
     {{
         $this->{}[] = ${};
+
         return $this;
-    }}""".format (result, adderName, attribute, attribute, attribute)
+    }}""".format (result, attribute, adderName, attribute, attribute, attribute)
   return result
 
 if __name__ == "__main__":

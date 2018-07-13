@@ -2,7 +2,10 @@
 import argparse
 
 def generate_xetters (attribute, is_array):
-  saneAttribute = "".join ([ u.capitalize () for u in attribute.split ('_') ])
+  if "_" in attribute:
+    saneAttribute = "".join ([ u.capitalize () for u in attribute.split ('_') ])
+  else:
+    saneAttribute = "{}{}".format (attribute[:1].capitalize(), attribute[1:])
 
   getterName = "get{}".format (saneAttribute)
   setterName = "set{}".format (saneAttribute)

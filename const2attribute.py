@@ -21,14 +21,14 @@ def main(constName):
      *
      * @var string
      */
-    private ${}
+    private ${};
 
     /**
      * @return string
      */
     public function get{}():string
     {{
-        return $this->{}
+        return $this->{};
     }}
 
     /**
@@ -41,67 +41,6 @@ def main(constName):
         return $this;
     }}
 """.format(attributeName, xetter_suffix, attributeName, attributeName, xetter_suffix, attributeName));
-
-
-
-
-
-
-
-"""
-
-
-
-
-
-
-      public const CODE_JE_NE_SAIS_PAS = 'JE NE SAIS PAS';
-
-      /** 
-       * @ORM\Column(type="string", length=255)
-       *   
-       * @Assert\Length(max=255)
-       *   
-       * @Dump\Column
-       *   
-       * @var string
-       */  
-  private $labelReferenceDuContrat;
-
-  /** 
-   * @return string|null
-   */  
-  public function getLabelReferenceDuContrat(): ?string
-{   
-  return $this->labelReferenceDuContrat;
-}   
-
-/** 
- * @param string $labelReferenceDuContrat
- *   
- * @return self
- */  
-public function setLabelReferenceDuContrat(string $labelReferenceDuContrat): self
-{   
-  $this->labelReferenceDuContrat = $labelReferenceDuContrat;
-
-  return $this;
-} 
-
-
-
-
-
-
-
-
-
-
-
-"""
-
-
-
 
 if __name__ == "__main__":
   parser = argparse.ArgumentParser ( description = "Conversion d'une constante en snake case majuscule en attribut + Xetters PHP.")
